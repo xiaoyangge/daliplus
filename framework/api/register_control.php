@@ -98,6 +98,7 @@ class register_control extends phpok_control
 			$data = $this->model('vcode')->check($code);
 			if(!$data){
 				$this->error($this->model('vcode')->error_info());
+				return true;
 			}
 			$this->model('user')->update_session($rs['id']);
 			$this->model('wealth')->login($rs['id'],P_Lang('会员登录'));
