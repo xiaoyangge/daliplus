@@ -79,7 +79,8 @@ class register_control extends phpok_control
 		if($this->session->val('user_id')){
 			$this->error(P_Lang('您已是本站会员，不能执行这个操作'));
 		}
-
+$user = $this->get("user");
+$vcode = $this->get("_vcode");
 		$chk = $this->model('user')->chk_name($user);
 			if($chk){
 				
@@ -90,18 +91,22 @@ class register_control extends phpok_control
 			if(!$this->lib('common')->tel_check($mobile,'mobile')){
 				$this->error(P_Lang('手机号不正确'));
 			}
+			$rs = $this->model('user')->get_one($mobile,'user',false,false);
 			/*$code = $this->get('_chkcode');
 			if(!$code){
 				$this->error(P_Lang('验证码不能为空'));
 			}*/
 			$this->model('vcode')->type('sms');
-			$data = $this->model('vcode')->check($code);
+			$data = $this->model('vcode')->check($vcode);
 			if(!$data){
-				$this->error($this->model('vcode')->error_info());
-				return true;
+			//-	$this->error($this->model('vcode')->error_info());
+			//-	return true;
 			}
 			$this->model('user')->update_session($rs['id']);
 			$this->model('wealth')->login($rs['id'],P_Lang('会员登录'));
+			
+
+
 			$array = array('user_id'=>$rs['id'],'user_name'=>$rs['user'],'user_gid'=>$rs['group_id']);
 			$this->success($array);
 			return true;
