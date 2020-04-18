@@ -79,6 +79,33 @@ class register_control extends phpok_control
 		if($this->session->val('user_id')){
 			$this->error(P_Lang('您已是本站会员，不能执行这个操作'));
 		}
+
+		$chk = $this->model('user')->chk_name($user);
+			if($chk){
+				
+			$mobile = $this->get('user');
+			if(!$mobile){
+				$this->error(P_Lang('手机号不能为空'));
+			}
+			if(!$this->lib('common')->tel_check($mobile,'mobile')){
+				$this->error(P_Lang('手机号不正确'));
+			}
+			/*$code = $this->get('_chkcode');
+			if(!$code){
+				$this->error(P_Lang('验证码不能为空'));
+			}*/
+			$this->model('vcode')->type('sms');
+			$data = $this->model('vcode')->check($code);
+			if(!$data){
+				$this->error($this->model('vcode')->error_info());
+			}
+			$this->model('user')->update_session($rs['id']);
+			$this->model('wealth')->login($rs['id'],P_Lang('会员登录'));
+			$array = array('user_id'=>$rs['id'],'user_name'=>$rs['user'],'user_gid'=>$rs['group_id']);
+			$this->success($array);
+			return true;
+		}
+
 		$group_id = $this->get("group_id","int");
 		if($group_id){
 			$group_rs = $this->model("usergroup")->get_one($group_id);
@@ -117,7 +144,7 @@ class register_control extends phpok_control
 			}
 			$chk = $this->model('user')->chk_name($user);
 			if($chk){
-				$this->error(P_Lang('会员账号已存用'));
+				$this->error(P_Lang('会员账号已存用'));//-----------
 			}
 		}
 		if($email){
