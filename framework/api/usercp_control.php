@@ -107,7 +107,7 @@ class usercp_control extends phpok_control
 			if($ext == 'jpeg'){
 				$ext = 'jpg';
 			}
-			$save_pic = 'res/user/'.$this->u_id.'.'.$ext;
+			$save_pic = 'res/user/'.$this->u_id.time().'.'.$ext;
 			$this->lib('file')->rm($this->dir_root.$save_pic);
 			$this->lib('file')->save_pic($content,$this->dir_root.$save_pic);
 			//生成正方式

@@ -73,7 +73,7 @@ class vcode_control extends phpok_control
 		if(!$rs){
 			$this->error(P_Lang('没有安装短信发送引挈，请先安装并设置默认'),$backurl);
 		}
-		$act = $this->get('act');
+/*		$act = $this->get('act');
 		if(!$act){
 			$act = 'login';
 		}
@@ -86,7 +86,7 @@ class vcode_control extends phpok_control
 				$this->error(P_Lang('手机号已注册'));
 			}
 		}
-		$data = $this->model('vcode')->create('sms',4);
+*/		$data = $this->model('vcode')->create('sms',4);
 		if(!$data){
 			$this->error($this->model('vcode')->error_info());
 		}

@@ -32,6 +32,11 @@ class comment_control extends phpok_control
 			$this->error(P_Lang('未指定主题'));
 		}
 		$condition = "tid='".$id."' AND parent_id='0' ";
+		$pid = $this->get('pid','int');
+		if($pid)
+		{
+			$condition .= "AND project_id=".$pid." ";
+		}
 		if($this->session->val('user_id')){
 			$condition .= " AND (status=1 OR (status=0 AND (uid=".$this->session->val('user_id')." OR session_id='".$this->session->sessid()."'))) ";
 		}else{
@@ -92,7 +97,7 @@ class comment_control extends phpok_control
 			if($tmplist){
 				$userlist = array();
 				foreach($tmplist as $key=>$value){
-					$tmp = array('id'=>$value['id'],'avatar'=>$value['avatar'],'user'=>$value['user']);
+					$tmp = array('id'=>$value['id'],'avatar'=>$value['avatar'],'user'=>$value['user'],'nickname'=>$value['nickname']);
 					$userlist[$value["id"]] = $tmp;
 				}
 				unset($tmplist);
@@ -137,7 +142,7 @@ class comment_control extends phpok_control
 		if(!$type){
 			$type = 'title';
 		}
-		if(!$type || !in_array($type,array('title','project','cate','order'))){
+		if(!$type || !in_array($type,array('title','feeds','project','cate','order'))){
 			$this->error(P_Lang('评论类型不对，请检查'));
 		}
 		$data = array('vtype'=>$type);
@@ -194,6 +199,51 @@ class comment_control extends phpok_control
 				}
 				$_clearVcode = true;
 			}
+			$data["status"] = $this->model('popedom')->val($rs['project_id'],$user_groupid,'reply1');
+			$sessid = $this->session->sessid();
+			$chk = $this->model('reply')->check_time($tid,$uid,$data["session_id"]);
+			if(!$chk){
+				$this->error(P_Lang('30秒内同一主题只能回复一次'));
+			}
+		}elseif($type == 'feeds'){
+			$tid = $this->get('tid','int');
+			if(!$tid && !$parent_id){
+				$this->error(P_Lang('未指定要评论主题'));
+			}
+			if(!$tid && $parent_id){
+				$comment = $this->model('reply')->get_one($parent_id);
+				if(!$comment || !$comment['tid']){
+					$this->error(P_Lang('未指定要评论主题'));
+				}
+				$tid = $comment['tid'];
+			}
+			$project_rs = $this->model('project')->get_one(444,false);
+			if(!$project_rs['comment_status']){
+				$this->error(P_Lang('未启用评论功能'));
+			}//-----------------
+			$rs = $this->model('list')->single_one($tid,97);
+			if(!$rs){
+				$this->error(P_Lang('要评论的主题不存在'));
+			}
+		/*	$project_rs = $this->model('project')->get_one($rs['project_id'],false);
+			if(!$project_rs['comment_status']){
+				$this->error(P_Lang('未启用评论功能'));
+			}*/
+			$data['tid'] = $rs['id'];
+			$data['title'] = $rs['title'];
+/*			if($this->model('site')->vcode($rs['project_id'],'comment')){
+				$code = $this->get('_chkcode');
+				if(!$code){
+					$this->error(P_Lang('验证码不能为空'));
+				}
+				$code = md5(strtolower($code));
+				if($code != $this->session->val('vcode')){
+					$this->error(P_Lang('验证码填写不正确'));
+				}
+				$_clearVcode = true;
+			}*/
+			$data['project_id'] = $rs['project_id'];
+	                $data['tid'] = $rs['id'];
 			$data["status"] = $this->model('popedom')->val($rs['project_id'],$user_groupid,'reply1');
 			$sessid = $this->session->sessid();
 			$chk = $this->model('reply')->check_time($tid,$uid,$data["session_id"]);
