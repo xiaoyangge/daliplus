@@ -23,15 +23,29 @@ class user_control extends phpok_control
 	**/
 	public function index_f()
 	{
-		$uid = $this->get("uid");
-		if(!$uid){
+		$ukey = $this->get("ukey");
+		if(!$ukey){
 			$this->error(P_Lang('未指定会员信息'));
 		}
 		if(!$this->session->val('user_id')){
 			$this->error(P_Lang('游客无法查看会员信息'));
 		}
-		$user_rs = $this->model('user')->get_one($uid,'id',false,false);
+		$user_rs = $this->model('user')->get_one($ukey,'ukey',false,false);
 		unset($user_rs['pass'],$user_rs['email'],$user_rs['mobile'],$user_rs['code']);
 		$this->success($user_rs);
+	}
+	public function get_list_f()
+	{
+		$uid = $this->get("uid");
+                if(!$uid){
+                        $this->error(P_Lang('未指定会员信息'));
+                }
+                if(!$this->session->val('user_id')){
+                        $this->error(P_Lang('游客无法查看会员信息'));
+                }
+                $user_rs = $this->model('user')->get_all_from_user($uid,'ukey');
+                //unset($user_rs['pass'],$user_rs['email'],$user_rs['mobile'],$user_rs['code']);
+                $this->success($user_rs);
+	
 	}
 }

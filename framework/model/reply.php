@@ -82,7 +82,7 @@ class reply_model_base extends phpok_model
 			$offset = intval($offset);
 			$sql .= " LIMIT ".$offset.",".$psize;
 		}
-		$rslist = $this->db->get_all($sql,'id');
+		$rslist = $this->db->get_all($sql);
 		if(!$rslist){
 			return false;
 		}
@@ -282,6 +282,22 @@ class reply_model_base extends phpok_model
 		}
 		if(($rs['addtime'] + 30) > $this->time){
 			return false;
+		}
+		return true;
+	}
+		/**
+	 * 点赞
+	 * @参数 $id 点赞ID
+	**/
+	public function star($id)
+	{
+		if(!$id){
+			return false;
+		}
+		$rs = $this->get_one($id);
+		if($rs){
+			$sql = "UPDATE ".$this->db->prefix."reply SET star=star+1 WHERE id='".$rs['id']."'";
+			$this->db->query($sql);
 		}
 		return true;
 	}

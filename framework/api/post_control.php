@@ -106,7 +106,7 @@ class post_control extends phpok_control
 		if(!$groupid){
 			return $this->_e(P_Lang('无法获取前端用户组信息'));
 		}
-		$id = $this->get('id','system');
+		$id = $this->get('id');
 		if(!$id){
 			return $this->_e(P_Lang('未绑定相应的项目'));
 		}
@@ -298,6 +298,10 @@ class post_control extends phpok_control
 		}
 		$data['project_id'] = $project['id'];
 		$data['cate_id'] = $project['cate'] ? $this->get('cate_id','int') : 0;
+		if($this->session->val('user_id')){
+                        $data['user_id'] = $this->session->val('user_id');
+                }
+		$data['dateline'] = date('Y-m-d H:i:s');
 		$flist = $this->model('module')->fields_all($module['id']);
 		if($flist){
 			foreach($flist as $key=>$value){
@@ -370,5 +374,28 @@ class post_control extends phpok_control
 		}
 		return array('status'=>true);
 	}
-
+	/**
+	 * 删除主题
+	 * @参数 id 主题ID
+	**/
+	public function like_f()
+	{
+		if(!$this->session->val('user_id')){
+			$this->error(P_Lang('非会员不能执行此操作'));
+		}
+		$mid = $this->get('mid','int');
+		$id = $this->get('id','int');
+		if(!$id){
+			$this->error(P_Lang('未指定主题ID'));
+		}
+		$rs = $this->model('list')->single_one($id,$mid);
+		if(!$rs){
+			$this->error(P_Lang('主题信息不存在'));
+		}
+		/*if($rs['user_id'] != $this->session->val('user_id')){
+			$this->error(P_Lang('您没有权限执行此操作'));
+		}*/
+		$this->model('list')->single_like($id,$mid);
+		$this->success();
+	}	
 }

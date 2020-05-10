@@ -99,15 +99,15 @@ $vcode = $this->get("_vcode");
 			$this->model('vcode')->type('sms');
 			$data = $this->model('vcode')->check($vcode);
 			if(!$data){
-			//-	$this->error($this->model('vcode')->error_info());
-			//-	return true;
+				$this->error($this->model('vcode')->error_info());
+				return true;
 			}
 			$this->model('user')->update_session($rs['id']);
 			$this->model('wealth')->login($rs['id'],P_Lang('会员登录'));
 			
 
 
-			$array = array('user_id'=>$rs['id'],'user_name'=>$rs['user'],'user_gid'=>$rs['group_id']);
+			$array = array('user_id'=>$rs['id'],'user_name'=>$rs['user'],'user_ukey'=>$rs['ukey']);
 			$this->success($array);
 			return true;
 		}
@@ -224,7 +224,7 @@ $vcode = $this->get("_vcode");
 			$user_status = 1;
 			$relaction_id = $tmp['id'];
 		}
-		
+			
 		$array = array();
 		$array["user"] = $user ? $user : ($mobile ? $mobile : $email);
 		$array["pass"] = password_create($newpass);
@@ -233,6 +233,7 @@ $vcode = $this->get("_vcode");
 		$array["group_id"] = $group_id;
 		$array["status"] = $user_status;
 		$array["regtime"] = $this->time;
+		$array["ukey"] = $ukey = md5($array["user"].$this->time);
 		$uid = $this->model('user')->save($array);
 		if(!$uid){
 			$this->error(P_Lang('注册失败，请联系管理员'));
@@ -274,6 +275,7 @@ $vcode = $this->get("_vcode");
 			$this->session->assign('user_id',$uid);
 			$this->session->assign('user_gid',$group_id);
 			$this->session->assign('user_name',$array["user"]);
+			$this->session->assign('user_ukey',$ukey);
 		}
 		$this->success($uid);
 	}

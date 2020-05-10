@@ -326,6 +326,53 @@ class user_model_base extends phpok_model
 		}
 		return $rslist;
 	}
+	/**
+         * 取得指定会员ID下的全部会员主表信息
+         * @参数 $uid 会员ID，多个ID用英文逗号隔开
+         * @参数 $pri 绑定的主键
+         * @参数 
+        **/
+        public function get_all_from_user($uid,$pri="")
+        {
+               if(!$uid){
+                        return false;
+                }
+                if(is_string($uid)){
+                        $tmp = explode(",",$uid);
+                        foreach($tmp as $key=>$value){
+                                if(!$value || !trim($value) || !intval($value)){
+                                        unset($tmp[$key]);
+                                }
+                        }
+                        $uid = implode("','",$tmp);
+                }else{
+                        if(is_array($uid)){
+                                $uid = implode("','",$uid);
+                        }
+                }
+                $condition = "u.ukey IN ('".$uid."')";
+                $rslist = $this->get_list($condition,0,0);
+                if(!$rslist){
+                        return false;
+                }
+                if(!$pri){
+                        $tmplist = array();
+                        foreach($rslist as $key=>$value){
+                                $tmplist[] = $value;
+                        }
+                        return $tmplist;
+                }
+                if($pri && $pri != 'id'){
+                        $tmplist = array();
+                        foreach($rslist as $key=>$value){
+                                $tmpid = $value[$pri];
+                                $tmplist[$tmpid] = $value;
+                        }
+                        return $tmplist;
+                }
+                return $rslist;
+        }
+
 
 	/**
 	 * 取得会员主表字段

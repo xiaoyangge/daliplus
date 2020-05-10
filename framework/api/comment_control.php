@@ -37,11 +37,12 @@ class comment_control extends phpok_control
 		{
 			$condition .= "AND project_id=".$pid." ";
 		}
-		if($this->session->val('user_id')){
+/*		if($this->session->val('user_id')){
 			$condition .= " AND (status=1 OR (status=0 AND (uid=".$this->session->val('user_id')." OR session_id='".$this->session->sessid()."'))) ";
 		}else{
 			$condition .= " AND (status=1 OR (status=0 AND session_id='".session_id()."')) ";
 		}
+*/		
 		
 		$vouch = $this->get('vouch','int');
 		if($vouch){
@@ -51,6 +52,17 @@ class comment_control extends phpok_control
 		if(!$total){
 			$this->error(P_Lang('暂无评论信息'));
 		}
+		$comment_id = $this->get('comment_id','int');
+		if($comment_id != "")
+                {
+                        $condition .= "AND id=".$comment_id." ";
+			$start = 0;
+			$psize =1;
+                }
+else
+{
+		
+		
 		$pageid = $this->get($this->config['pageid'],'int');
 		if(!$pageid){
 			$pageid = 1;
@@ -60,7 +72,8 @@ class comment_control extends phpok_control
 			$psize = $this->config['psize'] ? $this->config['psize'] : 30;
 		}
 		$start = ($pageid-1) * $psize;
-		$rslist = $this->model('reply')->get_list($condition,$start,$psize,"","id ASC");
+}		
+		$rslist = $this->model('reply')->get_list($condition,$start,$psize,"id DESC");
 		$idlist = $userlist = array();
 		foreach($rslist as $key=>$value){
 			if($value["uid"]){
@@ -71,12 +84,12 @@ class comment_control extends phpok_control
 		//读取回复的回复
 		$idstring = implode(",",$idlist);
 		$condition  = " parent_id IN(".$idstring.") ";
-		if($this->session->val('user_id')){
+/*		if($this->session->val('user_id')){
 			$condition .= " AND (status=1 OR (status=0 AND (uid=".$this->session->val('user_id')." OR session_id='".$this->session->sessid()."'))) ";
 		}else{
 			$condition .= " AND (status=1 OR (status=0 AND session_id='".session_id()."')) ";
 		}
-		
+*/		
 		$sublist = $this->model('reply')->get_list($condition,0,0);
 		if($sublist){
 			$mylist = array();
@@ -162,7 +175,7 @@ class comment_control extends phpok_control
 		$data["addtime"] = $this->time;
 		$data["star"] = $this->get('star','int');
 		if(!$data['star']){
-			$data['star'] = 3;
+			$data['star'] = 0;
 		}
 		$data["session_id"] = $this->session->sessid();
 		$_clearVcode = false;
@@ -248,7 +261,7 @@ class comment_control extends phpok_control
 			$sessid = $this->session->sessid();
 			$chk = $this->model('reply')->check_time($tid,$uid,$data["session_id"]);
 			if(!$chk){
-				$this->error(P_Lang('30秒内同一主题只能回复一次'));
+	//-			$this->error(P_Lang('30秒内同一主题只能回复一次'));
 			}
 		}elseif($type == 'order'){
 			if(!$uid){
@@ -332,11 +345,14 @@ class comment_control extends phpok_control
 			$data["status"] = 0;
 		}
 		$content = $uid ? $this->get('comment','html') : $this->get('comment');
-		if(!$content){
-			$this->error(P_Lang('评论内容不能为空'));
-		}
+		
 		$data['content'] = $content;
 		$data['res'] = $this->get('pictures'); //绑定附件，如果用户有上传附件，仅支持jpg,gif,png,zip,rar
+
+		if($content=="" && $data['res']==""){
+                        $this->error(P_Lang('评论内容不能为空'));
+                }
+
 		$insert_id = $this->model("reply")->save($data);
 		if(!$insert_id){
 			$this->error(P_Lang('评论保存失败，请联系管理员'));
@@ -348,6 +364,11 @@ class comment_control extends phpok_control
 			$update = array("replydate"=>$this->time);
 			$this->model("list")->save($update,$tid);
 		}
+		if($tid && in_array($type,array('feeds'))){
+                        $update = array("comments"=>$rs['comments']+1,'id'=>$tid);
+                        $this->model("list")->single_save($update,97);
+                }
+
 		//评论送积分
 		if($tid && $uid && $data["status"]){
 			$this->model('wealth')->add_integral($tid,$uid,'comment',P_Lang('评论：{title}',array('title'=>$rs['title'])));
@@ -357,7 +378,7 @@ class comment_control extends phpok_control
 			$param = 'id='.$insert_id;
 			$this->model('task')->add_once('comment',$param);
 		}
-		$this->success();
+		$this->success(array('comment_id'=>$insert_id));
 	}
 
 	/**
@@ -405,6 +426,30 @@ class comment_control extends phpok_control
 		}
 		$this->model('reply')->delete($id);
 		$this->model('log')->save(P_Lang('删除回复信息，ID是[id]，主题ID是 #[tid]',array('id'=>$id,'tid'=>$rs['tid'])));
+		$this->success();
+	}
+	/**
+	 * 点赞评论信息
+	 * @参数 $id 要点赞的评论ID
+	**/
+	public function star_f()
+	{
+		if(!$this->session->val('user_id')){
+			$this->error(P_Lang('非会员不能执行此操作'));
+		}
+		$id = $this->get('id','int');
+		if(!$id){
+			$this->error(P_Lang('未指定要点赞的回复ID'));
+		}
+		$rs = $this->model('reply')->get_one($id);
+		if(!$rs){
+			$this->error(P_Lang('回复信息不存在'));
+		}
+		if(!$rs['uid'] || $rs['uid'] != $this->session->val('user_id')){
+			$this->error(P_Lang('您没有权限点赞此数据'));
+		}
+		$this->model('reply')->star($id);
+		$this->model('log')->save(P_Lang('点赞回复操作'));
 		$this->success();
 	}
 }

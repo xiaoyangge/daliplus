@@ -1336,4 +1336,30 @@ class list_model_base extends phpok_model
 		}
 		return $this->db->count($sql);
 	}
+	/**
+	 * like独立项目下的主题信息
+	 * @参数 $id 主题ID
+	 * @参数 $mid 模块ID
+	**/
+	public function single_like($id,$mid=0)
+	{
+		if(!$id || !$mid){
+			return false;
+		}
+		$sql = "UPDATE ".$this->db->prefix.$mid." SET likes=likes+1 WHERE id =".$id;
+		return $this->db->query($sql);
+	}
+	/**
+	 * hits独立项目下的主题信息
+	 * @参数 $id 主题ID
+	 * @参数 $mid 模块ID
+	**/
+	public function single_hits($id,$mid=0)
+	{
+		if(!$id || !$mid){
+			return false;
+		}
+		$sql = "UPDATE ".$this->db->prefix.$mid." SET hits=hits+1 WHERE id =".$id;
+		return $this->db->query($sql);
+	}
 }

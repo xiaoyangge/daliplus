@@ -95,17 +95,17 @@
 			</comment>
 		</list>
 	</p-152>
-	<p-386>
+	<p-444>
 		<list>
 			<add>
 				<status><![CDATA[]]></status>
 			</add>
 			<edit>
-				<status><![CDATA[1]]></status>
+				<status><![CDATA[]]></status>
 			</edit>
 			<comment>
-				<status><![CDATA[1]]></status>
+				<status><![CDATA[]]></status>
 			</comment>
 		</list>
-	</p-386>
+	</p-444>
 </root>

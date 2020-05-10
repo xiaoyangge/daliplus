@@ -8,14 +8,12 @@
  * @授权 http://www.phpok.com/lgpl.html PHPOK开源授权协议：GNU Lesser General Public License
  * @时间 2016年07月21日
 **/
-
 /**
  * 安全限制
 **/
 if(!defined("PHPOK_SET")){
 	exit("<h1>Access Denied</h1>");
 }
-
 /**
  * 强制使用UTF-8编码
 **/
@@ -600,11 +598,11 @@ class _init_phpok
 		if($this->app_id == 'api'){
 			$this->db->error_type = 'json';
 		}
-		
 		foreach($this->config["engine"] as $key=>$value){
 			if($key == 'db'){
 				continue;
 			}
+
 			foreach($value as $k=>$v){
 				$v = preg_replace_callback('/\{(.+)\}/isU',array($this,'_config_ini_format'),$v);
 				$value[$k] = $v;

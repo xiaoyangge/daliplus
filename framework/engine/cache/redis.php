@@ -9,13 +9,14 @@
  * @license http://www.phpok.com/lgpl.html PHPOK开源授权协议：GNU Lesser General Public License
  * @update 2016年07月19日
 **/
-
 if(!defined("PHPOK_SET")){exit("<h1>Access Denied</h1>");}
 class cache_redis extends cache
 {
 	private $server = '127.0.0.1';
 	private $port = '6379';
+	private $pass = '';
 	private $conn;
+	private $db_name = 0;
 	private $config_data;
 	public function __construct($config)
 	{
@@ -28,6 +29,8 @@ class cache_redis extends cache
 	{
 		$this->server = $config["server"] ? $config["server"] : "127.0.0.1";
 		$this->port = $config["port"] ? $config["port"] : "6379";
+		$this->pass = $config["pass"] ? $config["pass"] : "";
+		$this->db_name = $config["db_name"] ? $config["db_name"] : "0";
 		if($this->status && !$this->conn){
 			$this->start();
 		}
@@ -53,6 +56,7 @@ class cache_redis extends cache
 		}
 		$this->conn = new Redis();
 		$this->conn->connect($this->server,$this->port);
+		$this->conn->auth($this->pass);
 		if($this->conn->ping() == '+PONG'){
 			$this->key_list = $this->get($this->key_id);
 			if(!$this->key_list){
@@ -60,6 +64,7 @@ class cache_redis extends cache
 			}
 			return true;
 		}
+		$this->conn->select($this->db_name);
 		$this->error('连接Redis服务器失败，请检查');
 		$this->status(false);
 		$this->__destruct();
