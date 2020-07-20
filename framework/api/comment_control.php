@@ -348,6 +348,7 @@ else
 		
 		$data['content'] = $content;
 		$data['res'] = $this->get('pictures'); //绑定附件，如果用户有上传附件，仅支持jpg,gif,png,zip,rar
+		$data['video'] = $this->get('video');
 
 		if($content=="" && $data['res']==""){
                         $this->error(P_Lang('评论内容不能为空'));

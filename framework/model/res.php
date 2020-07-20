@@ -10,6 +10,7 @@
 **/
 
 if(!defined("PHPOK_SET")){exit("<h1>Access Denied</h1>");}
+//error_reporting(E_ALL);
 class res_model_base extends phpok_model
 {
 	private $gdlist = array();

@@ -57,7 +57,7 @@ class upload_control extends phpok_control
 				$this->json(P_Lang('未配置附件存储方式'));
 			}
 		}
-		$filetypes = $this->u_id ? $cate_rs['filetypes'] : 'jpg,png,gif,rar,zip';
+		$filetypes = $this->u_id ? $cate_rs['filetypes'] : 'jpg,png,jpeg,gif,rar,zip';
 		$this->lib('upload')->set_type($filetypes);
 		$this->lib('upload')->set_cate($cate_rs);
 		$upload = $this->lib('upload')->upload('upfile');
@@ -270,6 +270,7 @@ public function _file($cateid,$data,$is_gd=false)
 			{
 				$this->model('res')->gd_update($id);
 			}
+		
 			$rs = $this->model('res')->get_one($id);
 			return $rs;
 	}

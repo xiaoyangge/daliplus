@@ -52,7 +52,7 @@ class fans_control extends phpok_control
 	public function fans_f()
 	{
 
-		$info = $this->kdb->hset('user','119925531','abc');
+	//-	$info = $this->kdb->hset('user','119925531','abc');
 		$user_id = $this->session->val('user_id');
 		if(!$user_id){
 			$this->error(P_Lang('您已是本站会员，不需要再次登录'));
@@ -69,8 +69,6 @@ class fans_control extends phpok_control
 	public function check_f()
 	{
 		$user_ukey = $this->session->val('user_ukey');
-echo $user_ukey;
-exit;
 		if(!$user_id){
 			$this->error(P_Lang('您已是本站会员，不需要再次登录'));
 		}

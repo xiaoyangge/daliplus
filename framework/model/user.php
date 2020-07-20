@@ -795,4 +795,11 @@ class user_model_base extends phpok_model
 		$sql = "o.user_id IN(".$condition.")";
 		return $this->model('order')->product_count($sql);
 	}
+	public function rank_name()
+	{
+		$data = array('雨儿小淘气','是个叨叨');
+		$i = mt_rand(0,count($data)-1);
+		return $data[$i];
+
+	}
 }

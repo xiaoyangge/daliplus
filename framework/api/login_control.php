@@ -9,6 +9,7 @@
  * @时间 2016年07月25日
 **/
 
+//error_reporting(E_ALL);
 if(!defined("PHPOK_SET")){exit("<h1>Access Denied</h1>");}
 class login_control extends phpok_control
 {
@@ -19,6 +20,107 @@ class login_control extends phpok_control
 	{
 		parent::control();
 		$this->config('is_ajax',true);
+	}
+
+	public function _phone_reg($phone)
+	{
+		$group_id = 2;
+		$group_rs = $this->model("usergroup")->get_one($group_id);
+			if(!$group_rs || !$group_rs['status']){
+				$group_id = 0;
+			}
+			if(!$group_rs['is_open'] && !$group_rs['is_default']){
+				$this->error(P_Lang('指定的会员组没有开放申请，请联系管理员'));
+			}
+
+		$array = array();
+		$array["user"] = $phone;
+		$array['mobile'] = $phone;
+		$array["group_id"] = $group_id;
+		$array["status"] = 1;
+		$array["regtime"] = $this->time;
+		$array["avatar"] = "res/nomal/avatar.jpg";
+		$array["ukey"] = $ukey = md5($phone.$this->time);
+		$uid = $this->model('user')->save($array);
+
+		if(!$uid){
+			$this->error(P_Lang('注册失败'));
+		}
+		//生成自己的邀请码
+		if($group_rs['register_status'] == 'code'){
+			$mycode = 'U'.$uid;
+			$this->model('user')->save(array('code'=>$mycode),$uid);
+		}
+		if(!$relaction_id && $this->session->val('introducer')){
+			$relaction_id = $this->session->val('introducer');
+		}
+		if($relaction_id){
+			$this->model('user')->save_relation($uid,$relaction_id);
+		}
+
+		$ext = array();
+		$ext["id"] = $uid;
+		$ext["nickname"] = $this->model('user')->rank_name();
+		$ext["bg_img"] = 'res/nomal/bg_img.jpg';
+
+		$this->model('user')->save_ext($ext);
+		$code = $this->get('code');//推荐码
+		if($code && !$relaction_id){
+			$tmp = $this->model('user')->get_one($code,'code',false,false);
+			if($tmp){
+				$this->model('user')->save_relation($uid,$tmp['id']);
+			}
+		}
+/*		if(!$user_status){
+			$this->success($uid);
+		}
+*/
+		$this->model('wealth')->register($uid,P_Lang('会员注册'));
+		return true;
+	}
+	public function _phone_login($phone,$is_reg)
+	{
+			$rs = $this->model('user')->chk_name($phone);
+			$this->model('user')->update_session($rs['id']);
+			$this->model('wealth')->login($rs['id'],P_Lang('会员登录'));
+			$array = array('user_id'=>$rs['id'],'user'=>$rs['user'],'ukey'=>$rs['ukey'],'is_reg'=>$is_reg);
+			$this->success($array);
+			return true;
+
+	}
+	public function login_f()
+	{
+		if($this->session->val('user_id')){
+	//		$this->error(P_Lang('您已经登录！'));
+		}
+		$user = $this->get('user');
+		$vcode = $this->get("_vcode");
+		if(!$user){
+			$this->error(P_Lang('请输入登录手机号！'));
+		}
+		if(!$this->lib('common')->tel_check($user,'mobile')){
+				$this->error(P_Lang('请使用正确的手机号登录!'));
+			}
+		if(!$vcode){
+			$this->error(P_Lang('请输入短信验证码！'));
+		}
+	/*	$this->model('vcode')->type('sms');
+                        $data = $this->model('vcode')->check($vcode);
+                        if(!$data){
+                                $this->error($this->model('vcode')->error_info());
+                                return false;
+                        }
+	*/	//--------------------------以上是检测参数-----------------
+		$user_info = $this->model('user')->chk_name($user);//检测用户是否已经存在
+		if(!$user_info)
+		{
+			$this->_phone_reg($user,$vcode);
+			$this->_phone_login($user,1);
+		}
+		else
+		{
+			$this->_phone_login($user,0);
+		}
 	}
 
 	/**

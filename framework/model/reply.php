@@ -88,6 +88,7 @@ class reply_model_base extends phpok_model
 		}
 		$rslist = $this->_reply($rslist);
 		$rslist = $this->_res($rslist,true);
+		$rslist = $this->_video($rslist,true);
 		return $rslist;
 	}
 
@@ -109,6 +110,44 @@ class reply_model_base extends phpok_model
 		return $rslist;
 	}
 
+        protected function _video($rslist,$ext=false)
+        {
+                $ids = array();
+                foreach($rslist as $key=>$value){
+                        if($value['video']){
+                                $ids[] = $value['video'];
+                        }
+                }
+                if(!$ids){
+                        return $rslist;
+                }
+                $ids = implode(",",$ids);
+                $list = explode(",",$ids);
+                $list = array_unique($list);
+                $ids = implode(",",$list);
+                $reslist = $this->model('res')->get_list_from_id($ids,$ext);
+                if(!$reslist){
+                        return $rslist;
+                }
+                foreach($rslist as $key=>$value){
+                        if(!$value['video']){
+                                continue;
+                        }
+                        $tmp = explode(",",$value['video']);
+                        $tmplist = array();
+			$gd_file = current($value['res']);
+                        foreach($tmp as $k=>$v){
+                                if($v && $reslist[$v]){
+                                        $tmplist[$v] = $reslist[$v];
+					$tmplist[$v]['gd'] = $gd_file['gd'];
+					$tmplist[$v]['attr'] = $gd_file['attr'];
+                                }
+                        }
+                        $value['video'] = $tmplist;
+                        $rslist[$key] = $value;
+                }
+                return $rslist;
+        }
 	/**
 	 * 评论中的附件
 	 * @参数 $rslist 回复数据，数组格式

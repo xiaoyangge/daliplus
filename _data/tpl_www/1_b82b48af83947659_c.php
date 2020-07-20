@@ -1,0 +1,1 @@
+<?php if(!defined("PHPOK_SET")){exit("<h1>Access Denied</h1>");} ?><p>您好，管理员</p><blockquote><p>您的网站（<a href="http://<?php echo $sys['url'];?>" target="_self"><?php echo $sys['url'];?></a>）新增了一篇主题，下述是主题的基本信息：<br/></p><p>主题名称：<?php echo $rs['title'];?></p><p>项目类型：<?php echo $page_rs['title'];?></p><p><br/></p><p>请登录网站查询</p></blockquote>

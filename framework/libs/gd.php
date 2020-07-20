@@ -252,7 +252,7 @@ class gd_lib
 			return false;
 		}
 		$img_info_source = $this->GetImgInfo($source);
-		if(!in_array($img_info_source["ext"],array("jpg","gif","png"))){
+		if(!in_array($img_info_source["ext"],array("jpg","gif","png","jpeg"))){
 			return false;
 		}
 		$this->filepath = substr($source,0,-(strlen(basename($source))));# 文件目录
@@ -292,13 +292,14 @@ class gd_lib
 			return false;
 		}
 		$tmp = strtolower(basename($picture));
-		$ext = substr($tmp,-3);
+		$tmp_ext = pathinfo($tmp);
+		$ext = $tmp_ext['extension'];
 		$infos = getimagesize($picture);
 		$info["width"] = $infos[0];
 		$info["height"] = $infos[1];
 		$info["type"] = $infos[2];
 		$info["ext"] = $infos[2] == 1 ? "gif" : ($infos[2] == 2 ? "jpg" : "png");
-		if($ext && in_array($ext,array('jpg','gif','png'))){
+		if($ext && in_array($ext,array('jpg','gif','png','jpeg'))){
 			$info['ext'] = $ext;
 		}
 		$info["name"] = substr(basename($picture),0,strrpos(basename($picture),"."));

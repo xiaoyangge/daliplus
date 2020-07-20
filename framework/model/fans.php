@@ -28,7 +28,7 @@ class fans_model_base extends phpok_model
 		if(!$user_id){
 			return false;
 		}
-		if(!$fans_id){
+		if(!$follow_id){
 			return false;
 		}
 		if($set == 1){
@@ -106,7 +106,7 @@ class fans_model_base extends phpok_model
 	public function get_follow($user_id="",$offset=0,$psize=30)
 	{
 		$flist = $this->fields_all();
-		$ufields = "f.*,u.nickname";
+		$ufields = "f.*,u.nickname,u.desc";
 		if($flist){
 			foreach($flist as $key=>$value){
 				$ufields .= ",u.".$value['identifier'];
@@ -126,7 +126,24 @@ class fans_model_base extends phpok_model
 			$offset = intval($offset);
 			$sql .= "LIMIT ".$offset.",".$psize;
 		}
+
 		$rslist = $this->db->get_all($sql,"id");
+		foreach($rslist as $k=>$v)
+                {
+                        $ids[$v['user_id']] = $v['user_id'];
+                }
+		$ids = implode(",",$ids);
+                $sql = "select id,avatar,ukey from ".$this->db->prefix."user where id in ({$ids})";
+
+                $rs_user = $this->db->get_all($sql,"id");
+                foreach($rslist as $k=>$v)
+                {
+                        if(isset($rs_user[$v['user_id']]))
+                        {
+                                $rslist[$k]['avatar'] = $rs_user[$v['user_id']]['avatar'];
+                                $rslist[$k]['ukey'] = $rs_user[$v['user_id']]['ukey'];
+                        }
+                }
 		if(!$rslist){
 			return false;
 		}

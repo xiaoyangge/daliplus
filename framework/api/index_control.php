@@ -95,7 +95,8 @@ class index_control extends phpok_control
 		if(!$this->site['api_code']){
 			$this->error(P_Lang("系统未配置接口功能"));
 		}
-		$id = $this->get('id','system');
+//		$id = $this->get('id','system');
+		$id = $this->get('id');
 		if(!$id){
 			$this->error(P_Lang('未指定数据调用标识'));
 		}
