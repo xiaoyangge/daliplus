@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<root>
-	<user><![CDATA[账号]]></user>
-	<group_id><![CDATA[会员组]]></group_id>
-	<gender><![CDATA[性别]]></gender>
-	<nickname><![CDATA[用户昵称]]></nickname>
-</root>

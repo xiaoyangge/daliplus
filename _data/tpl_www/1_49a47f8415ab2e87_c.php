@@ -1,1 +1,0 @@
-<?php if(!defined("PHPOK_SET")){exit("<h1>Access Denied</h1>");} ?>网站有新订单【<?php echo $order['sn'];?>】

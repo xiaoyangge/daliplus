@@ -1,1 +1,0 @@
-<?php if(!defined("PHPOK_SET")){exit("<h1>Access Denied</h1>");} ?><p>您好，管理员</p><blockquote><p>您的网站：<?php echo $sys['url'];?> 收到一份新的订单，订单号是：<?php echo $order['sn'];?>，请登录网站后台进行核验。</p></blockquote>

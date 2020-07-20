@@ -1,1 +1,0 @@
-<?php if(!defined("PHPOK_SET")){exit("<h1>Access Denied</h1>");} ?><p>您的订单：<?php echo $order['sn'];?> 已成功提交，请您及时完成支付操作。超过24小时未支付订单将会自动删除。感谢您对我们的支持！</p>
