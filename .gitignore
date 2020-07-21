@@ -1,4 +1,4 @@
-.res/*
-_config
+res/*
+_config/*
 _cache/*
-._data/*
+_data/*
