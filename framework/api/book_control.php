@@ -18,7 +18,7 @@ class book_control extends phpok_control
 	{
 		parent::control();
 		$this->config('is_ajax',true);
-	}
+	} 
 
 
 	/**
