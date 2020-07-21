@@ -14,7 +14,7 @@ class book_control extends phpok_control
 	/**
 	 * 构造函数
 	**/
-	public function __construct()
+	public function __construct() 
 	{
 		parent::control();
 		$this->config('is_ajax',true);

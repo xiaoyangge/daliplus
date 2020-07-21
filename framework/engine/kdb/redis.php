@@ -15,7 +15,7 @@ class kdb_redis extends kdb
 {
 	private $server = '127.0.0.1';
 	private $port = '6379';
-	private $conn;
+	public $conn;
 	private $config_data;
 	private $pass;
 	private $db_name;
